@@ -8,10 +8,10 @@ var logger = "";
 
 function createModel() {
   const model = tf.sequential();
-  model.add(tf.layers.dense({inputShape: [3], units: 3, useBias: true}));
-  model.add(tf.layers.dense({units: 50, useBias: true}));
-  model.add(tf.layers.dense({activation:"softmax", units:2}));
-  model.compile({loss:"categoricalCrossentropy",metrics:['accuracy','mse'], optimizer:tf.train.adam(0.06)});
+  model.add(tf.layers.dense({inputShape: [1], units: 1, useBias: true}));
+  model.add(tf.layers.dense({units: 100, useBias: true}));
+  model.add(tf.layers.dense({units: 1, useBias: true}));
+  model.compile({optimizer: tf.train.adam(),loss: tf.losses.meanSquaredError,metrics: ['mse']});
   return model;
 }
 
@@ -26,7 +26,7 @@ async function trainModel(ref, model, inputs, labels) {
     shuffle: true,
     callbacks: {
       onEpochEnd: async(epoch,logs) =>{
-        logger = "EPOCH: " + epoch + "    LOSS: " + logs.loss + "    MSE: " + logs.mse + "    ACCURACY: " + logs.acc;
+          logger = "EPOCH: " + epoch + "    LOSS: " + logs.loss + "    MSE: " + logs.mse;
         ref.state.value = logger;
         ref.setState({value:logger});
       }
@@ -45,12 +45,12 @@ function convertToTensor(data) {
 
     for(var i = 0; i < data.length; i++)
     {
-      inputs.push([parseFloat(data[i][0]), parseFloat(data[i][1]), parseFloat(data[i][2])]);
-      labels.push([parseFloat(data[i][3]), parseFloat(data[i][4])]);
+      inputs.push([parseFloat(data[i][0])]);
+      labels.push([parseFloat(data[i][1])]);
     }
 
-    const inputTensor = tf.tensor2d(inputs, [inputs.length, 3]);
-    const labelTensor = tf.tensor2d(labels, [labels.length, 2]);
+    const inputTensor = tf.tensor2d(inputs, [inputs.length, 1]);
+    const labelTensor = tf.tensor2d(labels, [labels.length, 1]);
 
     //console.log(labels);
 
@@ -116,12 +116,12 @@ class App extends React.Component
         {
           value:"",
           data:[
-            [0,0,0,0,0],
-            [0,0,0,0,0],
-            [0,0,0,0,0],
+            [0,0],
+            [0,0],
+            [0,0],
         ],
         sample:[
-          [0,0,0,0,0]
+          [0,0]
         ],
         prediction:""
         }
@@ -136,23 +136,20 @@ class App extends React.Component
       eventCell2 = data => {
           this.state.sample[data.i][data.j] = data.data;
           this.setState({sample:this.state.sample});
-          //console.log(this.state.data);
+          console.log(this.state.sample);
         }
 
     render() {
 
       return (
         <Container className="container">
-        <h1><center>Classifier</center></h1>
+        <h1><center>Regressor</center></h1>
         <br/><br/><br/>
         <table>
         <thead>
         <tr>
-        <th>Feature-1</th>
-        <th>Feature-2</th>
-        <th>Feature-3</th>
-        <th>Class-1</th>
-        <th>Class-2</th>
+        <th>Independent Variable</th>
+        <th>Dependent Variable</th>
         </tr>
         </thead>
         <tbody>
@@ -162,9 +159,6 @@ class App extends React.Component
           </tr>
         ))}
         <tr>
-        <th></th>
-        <th></th>
-        <th></th>
         <th></th>
         <th><Button variant="success" onClick={()=>{
           this.state.data.push([0,0,0,0,0]);
@@ -176,7 +170,7 @@ class App extends React.Component
         <table>
         <tbody>
         <tr>
-        <th><textarea className="form-control" value={this.state.value} rows="1" cols="100" onChange={()=>{}}/></th>
+        <th><textarea className="form-control" value={this.state.value} rows="1" cols="70" onChange={()=>{}}/></th>
         <th><Button variant="success" onClick={()=>{
           const tensorData = convertToTensor(this.state.data);
           const {inputs, labels} = tensorData;
@@ -189,20 +183,12 @@ class App extends React.Component
         <tbody>
         <tr>
         <th><Cell i = "0" j = "0" onChange={this.eventCell2}/></th>
-        <th><Cell i = "0" j = "1" onChange={this.eventCell2}/></th>
-        <th><Cell i = "0" j = "2" onChange={this.eventCell2}/></th>
         <th><Button variant="success" onClick={async ()=>{
           const tensorData = convertToTensor(this.state.sample);
-          const {inputs,} = tensorData;
+          const {inputs,} = await tensorData;
           var pred = await model.predict(inputs).array();
-          //console.log(pred);
-          if(parseFloat(pred[0][0]) > parseFloat(pred[0][1]))
-          {
-            this.setState({prediction:"Class-1"});
-          }
-          else {
-            this.setState({prediction:"Class-2"});
-          }
+          this.setState({prediction:parseFloat(pred[0])*100});
+          console.log(pred);
         }}>Predict</Button></th>
         <th><FormControl
           placeholder={this.state.prediction}
