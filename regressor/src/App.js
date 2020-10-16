@@ -9,15 +9,15 @@ var logger = "";
 function createModel() {
   const model = tf.sequential();
   model.add(tf.layers.dense({inputShape: [1], units: 1, useBias: true}));
-  model.add(tf.layers.dense({units: 100, useBias: true}));
   model.add(tf.layers.dense({units: 1, useBias: true}));
-  model.compile({optimizer: tf.train.adam(),loss: tf.losses.meanSquaredError,metrics: ['mse']});
+  model.compile({optimizer: tf.train.adam(),loss: tf.losses.meanSquaredError,metrics: ['mse'],
+  });
   return model;
 }
 
 async function trainModel(ref, model, inputs, labels) {
 
-  const batchSize = 5;
+  const batchSize = 3;
   const epochs = 100;
 
   return await model.fit(inputs, labels, {
@@ -161,7 +161,7 @@ class App extends React.Component
         <tr>
         <th></th>
         <th><Button variant="success" onClick={()=>{
-          this.state.data.push([0,0,0,0,0]);
+          this.state.data.push([0,0]);
           this.setState({data:this.state.data});
         }}>Add Row</Button></th>
         </tr>
@@ -184,10 +184,10 @@ class App extends React.Component
         <tr>
         <th><Cell i = "0" j = "0" onChange={this.eventCell2}/></th>
         <th><Button variant="success" onClick={async ()=>{
-          const tensorData = convertToTensor(this.state.sample);
-          const {inputs,} = await tensorData;
-          var pred = await model.predict(inputs).array();
-          this.setState({prediction:parseFloat(pred[0])*100});
+          const {labelMin, labelMax} = convertToTensor(this.state.data);
+          const {inputs} = await  convertToTensor(this.state.sample);
+          var pred = await model.predict(inputs).mul(labelMax.sub(labelMin)).add(labelMin).array();
+          this.setState({prediction:parseFloat(pred[0])});
           console.log(pred);
         }}>Predict</Button></th>
         <th><FormControl
