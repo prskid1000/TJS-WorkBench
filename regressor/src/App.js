@@ -1,36 +1,54 @@
 import React from 'react';
 import * as tf from '@tensorflow/tfjs'
+import * as tfvis from '@tensorflow/tfjs-vis';
 import {Container, FormControl, Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+/*eslint-disable */
 
 var logger = "";
 
-function createModel() {
+function plot(d)
+{
+  const series = ['trend'];
+  var dat = [];
+  for(var i = 0; i < d.length; i++)
+  {
+    var obj ={"x":d[i][0], "y":d[i][1]};
+    dat.push(obj);
+  }
+  console.log(dat);
+  const data = { values: [dat],  series};
+  const surface = { name: 'Line chart', tab: 'Charts' };
+  tfvis.render.linechart(surface, data);
+  tfvis.visor().open();
+}
+
+function createModel(layer, neuron) {
   const model = tf.sequential();
   model.add(tf.layers.dense({inputShape: [1], units: 1, useBias: true}));
+  for(var i = 0; i< parseInt(layer); i++)
+  model.add(tf.layers.dense({units: parseInt(neuron), useBias: true, activation:"sigmoid"}));
   model.add(tf.layers.dense({units: 1, useBias: true}));
   model.compile({optimizer: tf.train.adam(),loss: tf.losses.meanSquaredError,metrics: ['mse'],
   });
   return model;
 }
 
-async function trainModel(ref, model, inputs, labels) {
+async function trainModel(ref, model, inputs, labels, epoch) {
 
-  const batchSize = 3;
-  const epochs = 100;
+  const batchSize = 5;
+  const epochs = epoch;
+  tfvis.visor().open();
 
   return await model.fit(inputs, labels, {
     batchSize,
     epochs,
     shuffle: true,
-    callbacks: {
-      onEpochEnd: async(epoch,logs) =>{
-          logger = "EPOCH: " + epoch + "    LOSS: " + logs.loss + "    MSE: " + logs.mse;
-        ref.state.value = logger;
-        ref.setState({value:logger});
-      }
-    }
+    callbacks: tfvis.show.fitCallbacks(
+   { name: 'Training Performance' },
+   ['loss', 'mse', 'accuracy'],
+   { height: 200, callbacks: ['onEpochEnd'] })
   });
 }
 
@@ -73,8 +91,7 @@ function convertToTensor(data) {
   });
 }
 
-var model = createModel();
-
+var model;
 class Cell extends React.Component
 {
   constructor(props){
@@ -123,8 +140,14 @@ class App extends React.Component
         sample:[
           [0,0]
         ],
-        prediction:""
-        }
+        prediction:"",
+        epoch:0,
+        layer:0,
+        neuron:0
+      };
+      this.epochref = React.createRef();
+      this.layerref = React.createRef();
+      this.neuronref = React.createRef();
     }
 
     eventCell = data => {
@@ -160,25 +183,75 @@ class App extends React.Component
         ))}
         <tr>
         <th></th>
-        <th><Button variant="success" onClick={()=>{
+        <th>
+        <Button variant="success" onClick={()=>{
           this.state.data.push([0,0]);
           this.setState({data:this.state.data});
-        }}>Add Row</Button></th>
+        }}>Add Row</Button>
+        &nbsp;
+        <Button variant="success" onClick={()=>{
+          plot(this.state.data);
+        }}>Visualize</Button>
+        </th>
         </tr>
         </tbody>
         </table>
+
+        <br/>
         <table>
         <tbody>
         <tr>
-        <th><textarea className="form-control" value={this.state.value} rows="1" cols="70" onChange={()=>{}}/></th>
-        <th><Button variant="success" onClick={()=>{
+        <th><label>No. of epochs</label></th>
+        <th><label>No. of Layers</label></th>
+        <th><label>Neuron in each layer</label></th>
+        </tr>
+        <tr>
+        <th>
+        <FormControl
+          ref={this.epochref}
+          placeholder={this.state.epoch}
+          aria-label=""
+          onChange={()=>{this.setState({epoch:this.epochref.current.value})}}/>
+        </th>
+        <th>
+        <FormControl
+          ref={this.layerref}
+          placeholder={this.state.layer}
+          aria-label=""
+          onChange={()=>{this.setState({layer:this.layerref.current.value})}}/>
+        </th>
+        <th>
+        <FormControl
+          ref={this.neuronref}
+          placeholder={this.state.neuron}
+          aria-label=""
+          onChange={()=>{this.setState({neuron:this.neuronref.current.value})}}/>
+        </th>
+        </tr>
+        <tr>
+        <th></th>
+        <th></th>
+        <th>
+        <Button variant="success" onClick={()=>{
+          model = createModel(this.state.layer,this.state.neuron);
+          const surface1 = { name: 'Model Summary', tab: 'Model Inspection'};
+          const surface2 = { name: 'Layer Summary', tab: 'Model Inspection'};
+          tfvis.show.layer(surface2, model.getLayer(undefined, 1));
+          tfvis.show.modelSummary(surface1, model);
+          tfvis.visor().open();
+        }}>Model</Button>
+        &nbsp;
+        <Button variant="success" onClick={()=>{
           const tensorData = convertToTensor(this.state.data);
           const {inputs, labels} = tensorData;
-          trainModel(this, model, inputs, labels);
-        }}>Train</Button></th>
+          trainModel(this, model, inputs, labels, this.state.epoch);
+        }}>Train</Button>
+        </th>
         </tr>
         </tbody>
         </table>
+        <br/>
+        <label><b>Test Model</b></label>
         <table>
         <tbody>
         <tr>
@@ -188,7 +261,6 @@ class App extends React.Component
           const {inputs} = await  convertToTensor(this.state.sample);
           var pred = await model.predict(inputs).mul(labelMax.sub(labelMin)).add(labelMin).array();
           this.setState({prediction:parseFloat(pred[0])});
-          console.log(pred);
         }}>Predict</Button></th>
         <th><FormControl
           placeholder={this.state.prediction}
