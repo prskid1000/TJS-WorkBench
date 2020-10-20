@@ -1,50 +1,68 @@
-# TJS-WorkBench
-![All Contributors](https://img.shields.io/github/contributors/prskid1000/CPMath)
-![Last Commit](https://img.shields.io/github/last-commit/prskid1000/Template)
-<br>A React+TensorflowJS based Regressor and Classifier.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Available Scripts
 
-## Getting started
+In the project directory, you can run:
 
-- Fork the repository.
-- Clone it to your machine.
+### `npm start`
 
-## Code of Conduct
+Runs the app in the development mode.<br />
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-We really appreciate the keen interest and the overall work culture we create by
-working together as a team with various unique experiences and minds culminated
-into a single project. This is only possible if we respect each other.
+The page will reload if you make edits.<br />
+You will also see any lint errors in the console.
 
-Kindly go through our
-[Code of Conduct](https://github.com/prskid1000/Template/blob/main/.github/CODE_OF_CONDUCT_TEMPLATE/CODE_OF_CONDUCT.md)
-to take a moment and familiarise with the spirit of opensource.
+### `npm test`
 
-## Contributing Guide
+Launches the test runner in the interactive watch mode.<br />
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-If you're have worked on the front-end part make PR to the front-end branch
-and same goes for the back-end too.
+### `npm run build`
 
-### PR rules:
-- Kindly follow the Pull Request template provided.
+Builds the app for production to the `build` folder.<br />
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-For more details kindly go through our
-[Contributing Guidelines.](https://github.com/prskid1000/Template/blob/main/.github/CONTRIBUTING_TEMPLATE/CONTRIBUTING.md)
+The build is minified and the filenames include the hashes.<br />
+Your app is ready to be deployed!
 
-## Contributors ✨
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+### `npm run eject`
 
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tr>
-    <td align="center"><a href="http://biograph.dx.am/"><img src="https://avatars0.githubusercontent.com/prskid1000" width="100px;" alt=""/><br /><sub><b>prskid1000</b></sub></a><br /><a href="https://github.com/prskid1000/Template/commits?author=prskid1000" title="Code">💻</a></td>
-  </tr>
-</table>
+**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
-<!-- markdownlint-enable -->
-<!-- prettier-ignore-end -->
-<!-- ALL-CONTRIBUTORS-LIST:END -->
+If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+
+You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+
+### Analyzing the Bundle Size
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+
+### Making a Progressive Web App
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+
+### Advanced Configuration
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+
+### Deployment
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+
+### `npm run build` fails to minify
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
